@@ -1,0 +1,14 @@
+diff -ruN pingorig/ping.pyx pingpatch/ping.pyx
+--- pingorig/ping.pyx	2018-12-03 09:46:09.445165282 +0100
++++ pingpatch/ping.pyx	2018-12-03 09:43:19.554848884 +0100
+@@ -98,7 +98,10 @@
+ def verbose_ping(dest_addr, timeout, count, logfile, logmsg):
+     fd = 0
+     if (logfile != ""):
++        os.seteuid(os.getuid())
+         fd = open(logfile, "a")
++        os.seteuid(0)
++
+     log_it(fd, logmsg); log_it(fd, "\n")
+     x = 0
+     while (x != count):

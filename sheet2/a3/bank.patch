@@ -1,0 +1,86 @@
+diff -ruN orig/var/www/html/application/classes/UserClass.php new/var/www/html/application/classes/UserClass.php
+--- orig/var/www/html/application/classes/UserClass.php	2017-11-14 21:20:07.000000000 +0100
++++ new/var/www/html/application/classes/UserClass.php	2018-11-19 01:13:57.932783403 +0100
+@@ -46,10 +46,13 @@
+ 		foreach ($userdata as $key => $value) {
+ 			if($key === 'fname' or $key === 'sname')
+ 			{
+-				if(strlen($value) < 3 or strlen($value) > 100)
++				$name = trim(strip_tags(addslashes($value)));
++                $name = htmlspecialchars($name);
++
++				if(strlen($name) < 3 or strlen($name) > 100)
+ 					break;
+ 				else
+-					$data[$key] = $value;
++					$data[$key] = $name;
+ 			}
+ 		}
+ 
+diff -ruN orig/var/www/html/application/controller/card2card.php new/var/www/html/application/controller/card2card.php
+--- orig/var/www/html/application/controller/card2card.php	2017-11-14 21:20:07.000000000 +0100
++++ new/var/www/html/application/controller/card2card.php	2018-11-19 00:59:38.349551059 +0100
+@@ -143,12 +143,15 @@
+ 
+                     if ($amount > 0 && $from_card_balance->balance >= $amount)
+                     {
++                        $message = trim(strip_tags(addslashes($_POST['message'])));
++                        $message = htmlspecialchars($message);
++
+                         $to_user_id = $this->model->getUserIdByCard($_POST['to_card']);
+                         $transactionArray = array('user_id' => $_SESSION['userdata']['id'],
+                                                 'from_card' => $from_card,
+                                                 'to_card' => $to_card,
+                                                 'amount' => $amount,
+-                                                'message' => $_POST['message'],
++                                                'message' => $message,
+                                                 'to_user_id' => $to_user_id->user_id
+                                             );
+ 
+@@ -209,7 +212,7 @@
+         {
+             if($_REQUEST['export'] === 'CSV')
+             {
+-                $transactions = $this->model->getAllTransactions($_REQUEST['id']);
++                $transactions = $this->model->getAllTransactions($_SESSION['userdata']['id']);
+ 
+                 $csvArray = array(
+                     array('id', 'From card', 'To card', 'Count', 'Date', 'Message' )
+@@ -250,7 +253,7 @@
+             elseif($_REQUEST['export'] === 'XML')
+             {
+ 
+-                $transactions = $this->model->getAllTransactions($_REQUEST['id']);
++                $transactions = $this->model->getAllTransactions($_SESSION['userdata']['id']);
+ 
+                 if($transactions)
+                 {
+diff -ruN orig/var/www/html/application/controller/index.php new/var/www/html/application/controller/index.php
+--- orig/var/www/html/application/controller/index.php	2017-11-14 21:20:07.000000000 +0100
++++ new/var/www/html/application/controller/index.php	2018-11-19 00:57:50.448609462 +0100
+@@ -74,7 +74,7 @@
+ 
+     public function userlist()
+     {
+-        if (!$this->authTest())
++        if (!$this->authTest() || $_SESSION['userdata']['name'] !== 'support')
+             Bank::exit('/');
+         elseif($_SERVER['REQUEST_METHOD'] === 'PUT' && isset($_SERVER['CONTENT_TYPE']))
+         {
+diff -ruN orig/var/www/html/application/controller/support.php new/var/www/html/application/controller/support.php
+--- orig/var/www/html/application/controller/support.php	2017-11-14 21:20:07.000000000 +0100
++++ new/var/www/html/application/controller/support.php	2018-11-19 01:19:12.711484264 +0100
+@@ -29,8 +29,11 @@
+                 if($this->check($_POST['url']))
+                 {
+                     $user_id = $_SESSION['userdata']['id'];
+-                    foreach ($_POST as $support => $value)
+-                        $$support = trim($value);
++                    foreach ($_POST as $support => $value){
++                        $val = strip_tags(addslashes($value));
++                        $val = htmlspecialchars($val);
++                        $$support = trim($val);
++                    }
+ 
+                     $result = $this->model->toSupport($message, $theme, $url, $user_id);
+ 
